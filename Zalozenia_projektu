@@ -1,0 +1,58 @@
+1) Muszę znać wszystkie możliwe do skonfigurowania opcje na otomoto.
+
+2) Stworzyć bazę danych do przechowywania pobranych informacji - każda kolumna w bazie danych będzie odpowiadać
+   jednej opcji na otomoto + adres www ( adres www strony jako klucz główny ? ).
+
+3) Napisać program który:
+    1)  Będzie raz  dziennie  wchodził na otomoto i pobierał
+        wszystkie dostępne na otomoto dane o samochodach.
+
+    2)  Pobrane z otomoto dane będą zapisywane w bazie danych, z odpowiednimi regułami, pozwalającymi na
+        unikanie powtórzeń, i śledezenie pojazdów - czy zostały sprzedane, jak długo wisiały na otomoto itp.
+
+    3) Wytrenowanie AI na zebranej bazie danych, w sposób pozwalający na ocenę, które auta najlepiej kupić aby móc je sprzedać
+       w określonym przedziale cenowym - czyli np jakie cechy mają auta które sprzedają się najszybciej i jakie przebitki
+       cenowe można na nich uzyskać. ( Czyli np, jeśli program namierzy że jakieś auto pojawia się znó na otomoto ale od
+       innego sprzedawcy, w bazie danych powinny istnieć dodatkowe kolumny na kolejne uzyskiwane ceny )
+
+
+    ad 1)
+        - Program będzie wchodził na stronę otomoto / osobowe i sprawdzał ile jest podstron ( numer na ostatnim
+        przycisku ) - ta liczba będzie liczą Pętli odpowiadającej za odwiedzanie kolejnych stron otomoto
+
+        program będzie pobierał pod-stronę każdego pojazdu z danego numeru strony przegladania
+
+    ad 2)
+        - Program będzie zapisywał każdy pojazd do bazy danych.
+        - głównym kluczem będzie adres strony pojazdu
+            - Jeżeli dany pojazd jest już w bazie danych ( po adresie ) -> program zaktualizuje datę ostatniej
+              dostępności ogłoszenia ( na jej podstawie będzie wiadomo kiedy ogłoszenie zniknęło ze strony )
+        - Program będzie przy każdym pojeździe sprawdzał czy numer vin pojazdu lub adres rejestracyjny jest już w
+          bazie danych. Jeśli tak -> a pojazd jest wystawiony przez innego uzytkownika, będzie tworzył nowy rekord, ale
+          z powiązanym wcześniejszym rekordem w bazie danych, tak aby można było prześledzić jego historię
+          -!! ponadto program taki oznaczy w bazie danej taki pojazd jako H czyli od handlarza - bo prawdopodobnie
+          jak ktoś kupuje i od razu sprzedaje to jakiś handlarz - będzie łatwo w bazie danych można prześledzić jak
+          wielu handlarzy jak działa - jakie przebitki cenowe i na jakich autach.
+        - Jeżeli pojazd znów pojawi się na otomoto i znów od tego samego sprzedawcy, ale pod innym adresem url, po prostu będzie
+        aktualizowany istniejący wpis
+
+        Problem - w jaki sposób ustalić, czy jakiś samochód został sprzedany, czy nie.
+        - Należy przyjąć margines błędu w założeniach - pewną część danych z góry uznać za sprzedaną a część za rezygnację
+
+            1) Jeśli ogłoszenie zniknie z otomoto przed czasem maksymalnym ogłoszenia - można przyjąć że 95-100% przypadków - ogłoszenie
+            zdejmowane jest przed końcem tylko wtedy kiedy auto zostanie sprzedane.
+
+            2) Jeśli ogłoszenie zniknie po pełnym czasie na jaki jest ogłoszenie - to w zależności od stanu, wieku auta:
+                - jeśli auto jest uszkodzone stare to uznajemy że 50/50 zostało sprzedane, reszta ze nie sprzedane ( złomowane itp )
+                - jeżeli auto jest nowe uszkodzone to uznajemy że 60% sprzedanych 40% złomowanych
+                - jeżeli auto jest w miarę nowe nieuszkodzone to 80% sprzedanych, 20% rezygnacji, darowizn
+                - jeżeli auto jest stare nieuszkodzone to 70% że sprzedane,30% że złomowane, darowizna
+                    ( też można skalować według wieku i ceny auta - tanie auto mogło być złomowane, drogie raczej zostało sprzedane )
+             ** Jeżeli auto zostało uznane za złomowane, niesprzedane itp, a pojawi się na otomoto od tego samego właściciela
+                to po prostu kontynuujemy poprzednie ogłoszenie i wycofujemy etykietę złomowania
+             ** Jeżeli auto uznane za złomowane znów pojawi się na otomoto ale od innego właściciela, to w poprzednim ogłoszeniu
+                etykietę złomowania zamieniamy na sprzedane
+
+Baza danych - program będzie dodawał automatycznie kolumny do bazy danych w zależności od tego co będzie pojawiać się na stronach
+- nie będę z góry przepisywał wszystkiego ze strony dodawania oferty, bo nie wiadomo jakie opisy tych samych rzeczy są na
+stronach ofert, a na stronie dodawania ofert.
